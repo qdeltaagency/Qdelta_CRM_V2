@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { motion } from 'framer-motion';
 
 export type BadgeVariant =
   | 'gray'
@@ -81,13 +82,17 @@ export function Badge({
   const current = variantStyles[variant] || variantStyles.gray;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border ${current.container} ${className}`}
-      {...props}
+    <motion.span
+      layout
+      initial={{ scale: 0.95, opacity: 0.8 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border transition-colors duration-200 ${current.container} ${className}`}
+      {...(props as any)}
     >
-      {dot && <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${current.dot}`} />}
+      {dot && <span className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors duration-200 ${current.dot}`} />}
       {children}
-    </span>
+    </motion.span>
   );
 }
 
@@ -150,38 +155,31 @@ export function StatusBadge({ status }: { status: string }) {
       label = 'Inactive';
       break;
 
-    // Milestones & Payments (Exact rules)
-    // locked -> gray
+    // Milestones & Payments
     case 'locked':
       variant = 'gray';
       label = 'Locked';
       break;
-    // ready -> blue
     case 'ready':
       variant = 'blue';
       label = 'Ready';
       break;
-    // link_generated -> purple
     case 'link_generated':
       variant = 'purple';
       label = 'Link Generated';
       break;
-    // pending -> orange
     case 'pending':
       variant = 'orange';
       label = 'Pending';
       break;
-    // paid -> green
     case 'paid':
       variant = 'green';
       label = 'Paid';
       break;
-    // failed -> red
     case 'failed':
       variant = 'red';
       label = 'Failed';
       break;
-    // overdue -> strong red
     case 'overdue':
       variant = 'strong_red';
       label = 'Overdue';
@@ -239,7 +237,7 @@ export function StatusBadge({ status }: { status: string }) {
   }
 
   return (
-    <Badge variant={variant} dot>
+    <Badge key={`${status}-${variant}`} variant={variant} dot>
       {label}
     </Badge>
   );

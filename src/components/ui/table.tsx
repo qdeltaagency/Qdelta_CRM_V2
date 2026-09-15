@@ -49,11 +49,19 @@ export function TableBody({
 export function TableRow({
   className = '',
   children,
+  onClick,
   ...props
 }: React.HTMLAttributes<HTMLTableRowElement>) {
+  const isClickable = Boolean(onClick);
+
   return (
     <tr
-      className={`hover:bg-zinc-50/90 dark:hover:bg-zinc-800/50 transition-colors cursor-default ${className}`}
+      onClick={onClick}
+      className={`transition-all duration-150 ${
+        isClickable
+          ? 'cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/60 active:bg-zinc-200/60 dark:active:bg-zinc-700/50 active:scale-[0.998] will-change-transform'
+          : 'hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 cursor-default'
+      } ${className}`}
       {...props}
     >
       {children}

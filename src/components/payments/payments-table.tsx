@@ -111,7 +111,11 @@ export function PaymentsTable({
             const hasOverdue = group.paymentState === 'overdue' || group.milestones.some((m) => m.status === 'overdue');
 
             return (
-              <TableRow key={group.projectId}>
+              <TableRow
+                key={group.projectId}
+                onClick={() => onViewPayments(group)}
+                className="cursor-pointer"
+              >
                 {/* 1. Project Name */}
                 <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
                   <div className="flex flex-col">
@@ -133,6 +137,7 @@ export function PaymentsTable({
                     {group.clientId ? (
                       <Link
                         href={`/clients/${group.clientId}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="font-medium text-zinc-900 dark:text-zinc-100 hover:underline inline-flex items-center gap-1"
                         title="Open Client Workspace"
                       >
@@ -189,15 +194,17 @@ export function PaymentsTable({
 
                 {/* 8. Actions: View Payments */}
                 <TableCell className="text-right">
-                  <Button
-                    size="sm"
-                    variant="default"
-                    className="h-7 px-2.5 text-xs gap-1 cursor-pointer"
-                    onClick={() => onViewPayments(group)}
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    View Payments
-                  </Button>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="h-7 px-2.5 text-xs gap-1 cursor-pointer"
+                      onClick={() => onViewPayments(group)}
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      View Payments
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             );

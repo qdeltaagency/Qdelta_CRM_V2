@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 interface DrawerProps {
@@ -34,8 +35,6 @@ export function Drawer({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   const widthStyles = {
     md: 'max-w-md',
     lg: 'max-w-xl',
@@ -43,26 +42,42 @@ export function Drawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 dark:bg-black/70 backdrop-blur-xs flex justify-end animate-fade-in">
-      <div
-        className={`w-full ${widthStyles[width]} h-full bg-white dark:bg-[#1C1C1F] border-l border-zinc-200 dark:border-[#2C2C31] shadow-2xl flex flex-col justify-between`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="p-5 md:p-6 border-b border-zinc-200 dark:border-[#2C2C31] flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-base md:text-lg text-zinc-900 dark:text-[#F5F5F5] tracking-tight">{title}</h3>
-            {subtitle && <p className="text-xs text-zinc-500 dark:text-[#71717A] font-normal mt-0.5">{subtitle}</p>}
-          </div>
-          <button
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-xs"
             onClick={onClose}
-            className="p-1.5 rounded-[8px] text-zinc-400 dark:text-[#71717A] hover:text-zinc-900 dark:hover:text-[#F5F5F5] hover:bg-zinc-100 dark:hover:bg-[#232327] transition-colors cursor-pointer"
+          />
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className={`w-full ${widthStyles[width]} h-full bg-white dark:bg-[#1C1C1F] border-l border-zinc-200 dark:border-[#2C2C31] shadow-2xl flex flex-col justify-between z-10 will-change-transform`}
+            onClick={(e) => e.stopPropagation()}
           >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+            <div className="p-5 md:p-6 border-b border-zinc-200 dark:border-[#2C2C31] flex items-center justify-between shrink-0">
+              <div>
+                <h3 className="font-semibold text-base md:text-lg text-zinc-900 dark:text-[#F5F5F5] tracking-tight">{title}</h3>
+                {subtitle && <p className="text-xs text-zinc-500 dark:text-[#71717A] font-normal mt-0.5">{subtitle}</p>}
+              </div>
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-[8px] text-zinc-400 dark:text-[#71717A] hover:text-zinc-900 dark:hover:text-[#F5F5F5] hover:bg-zinc-100 dark:hover:bg-[#232327] transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-        <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-6 text-zinc-800 dark:text-[#F5F5F5]">{children}</div>
-      </div>
-    </div>
+            <div className="flex-1 overflow-y-auto p-5 md:p-6 space-y-6 text-zinc-800 dark:text-[#F5F5F5]">{children}</div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

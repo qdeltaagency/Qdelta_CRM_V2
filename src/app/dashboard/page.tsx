@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { motion, Variants } from 'framer-motion';
 import { PageHeader } from '@/components/layout/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +15,7 @@ import {
   TableEmptyState,
 } from '@/components/ui/table';
 import { StatusBadge } from '@/components/ui/badge';
+import { Skeleton, SkeletonTableRows } from '@/components/ui/skeleton';
 import { getLeads, Lead } from '@/lib/leads-service';
 import { getClients, Client } from '@/lib/clients-service';
 import { getProjects, ProjectItem } from '@/lib/projects-service';
@@ -29,6 +31,28 @@ import {
   ArrowRight,
   ExternalLink,
 } from 'lucide-react';
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.25,
+      ease: 'easeOut',
+    },
+  },
+};
 
 export default function DashboardPage() {
   const { toast } = useToast();
@@ -111,96 +135,102 @@ export default function DashboardPage() {
         }
       />
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link
-          href="/leads"
-          className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block"
+      {/* Metrics Row with Staggered Entrance Animation */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Skeleton variant="card" />
+          <Skeleton variant="card" />
+          <Skeleton variant="card" />
+          <Skeleton variant="card" />
+        </div>
+      ) : (
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          <div className="flex items-center justify-between">
-            <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-              Active Leads
-            </p>
-            <Users className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
-          </div>
-          <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {isLoading ? (
-              <span className="inline-block w-8 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
-            ) : (
-              stats.activeLeads
-            )}
-          </p>
-          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
-            Pipeline in progress <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </p>
-        </Link>
+          <motion.div variants={cardVariants} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+            <Link
+              href="/leads"
+              className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block h-full shadow-2xs"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                  Active Leads
+                </p>
+                <Users className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
+              </div>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+                {stats.activeLeads}
+              </p>
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
+                Pipeline in progress <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+            </Link>
+          </motion.div>
 
-        <Link
-          href="/clients"
-          className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block"
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-              Active Clients
-            </p>
-            <Briefcase className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
-          </div>
-          <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {isLoading ? (
-              <span className="inline-block w-8 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
-            ) : (
-              stats.activeClients
-            )}
-          </p>
-          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
-            Retained & accounts <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </p>
-        </Link>
+          <motion.div variants={cardVariants} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+            <Link
+              href="/clients"
+              className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block h-full shadow-2xs"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                  Active Clients
+                </p>
+                <Briefcase className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
+              </div>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+                {stats.activeClients}
+              </p>
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
+                Retained & accounts <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+            </Link>
+          </motion.div>
 
-        <Link
-          href="/projects"
-          className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block"
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-              Ongoing Projects
-            </p>
-            <Layers className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
-          </div>
-          <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {isLoading ? (
-              <span className="inline-block w-8 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
-            ) : (
-              stats.ongoingProjects
-            )}
-          </p>
-          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
-            Active production <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </p>
-        </Link>
+          <motion.div variants={cardVariants} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+            <Link
+              href="/projects"
+              className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block h-full shadow-2xs"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                  Ongoing Projects
+                </p>
+                <Layers className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
+              </div>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+                {stats.ongoingProjects}
+              </p>
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
+                Active production <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+            </Link>
+          </motion.div>
 
-        <Link
-          href="/payments"
-          className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block"
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-              Pending Milestones
-            </p>
-            <Clock className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
-          </div>
-          <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
-            {isLoading ? (
-              <span className="inline-block w-8 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
-            ) : (
-              stats.pendingMilestones
-            )}
-          </p>
-          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
-            Ready & awaiting unlock <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </p>
-        </Link>
-      </div>
+          <motion.div variants={cardVariants} whileHover={{ y: -2, transition: { duration: 0.15 } }}>
+            <Link
+              href="/payments"
+              className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors group cursor-pointer block h-full shadow-2xs"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                  Pending Milestones
+                </p>
+                <Clock className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors" />
+              </div>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-2">
+                {stats.pendingMilestones}
+              </p>
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
+                Ready & awaiting unlock <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+            </Link>
+          </motion.div>
+        </motion.div>
+      )}
 
       {/* Recent Activity / Pipeline Overview */}
       <div className="space-y-4">
@@ -230,14 +260,7 @@ export default function DashboardPage() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-zinc-400">
-                  <div className="flex items-center justify-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin text-zinc-400" />
-                    <span>Loading projects...</span>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <SkeletonTableRows rows={4} cols={6} />
             ) : recentProjects.length === 0 ? (
               <TableEmptyState
                 title="No projects currently active"

@@ -249,6 +249,7 @@ export function LeadsTable({
               <TableRow
                 key={lead.id}
                 className={isRepeatLead ? 'bg-purple-500/[0.015] dark:bg-purple-500/[0.02]' : ''}
+                onClick={() => onViewLead(lead)}
               >
                 {/* 1. Lead / Contact */}
                 <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
@@ -302,7 +303,7 @@ export function LeadsTable({
                   {isConverted ? (
                     <StatusBadge status={lead.status} />
                   ) : (
-                    <div className="w-32">
+                    <div className="w-32" onClick={(e) => e.stopPropagation()}>
                       <CRMSelect
                         value={lead.status}
                         disabled={isUpdating}
@@ -327,7 +328,7 @@ export function LeadsTable({
 
                 {/* 7. Actions: View Details + Edit */}
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                  <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="default"
                       size="sm"

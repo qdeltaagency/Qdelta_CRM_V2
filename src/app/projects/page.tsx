@@ -380,7 +380,10 @@ export default function ProjectsPage() {
               const isUpdating = updatingId === project.id;
 
               return (
-                <TableRow key={project.id}>
+                <TableRow
+                  key={project.id}
+                  onClick={() => setSelectedProject(project)}
+                >
                   {/* 1. Project */}
                   <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
                     <div className="flex flex-col">
@@ -399,6 +402,7 @@ export default function ProjectsPage() {
                       {project.client_id ? (
                         <Link
                           href={`/clients/${project.client_id}`}
+                          onClick={(e) => e.stopPropagation()}
                           className="font-medium hover:underline inline-flex items-center gap-1 text-zinc-900 dark:text-zinc-100"
                         >
                           <span>{client?.name || '—'}</span>
@@ -427,7 +431,7 @@ export default function ProjectsPage() {
 
                   {/* 5. Stage Dropdown Selector (Clean Single Control) */}
                   <TableCell>
-                    <div className="w-36">
+                    <div className="w-36" onClick={(e) => e.stopPropagation()}>
                       <CRMSelect
                         value={project.stage}
                         disabled={isUpdating}
@@ -461,15 +465,17 @@ export default function ProjectsPage() {
 
                   {/* 8. Actions: View Project Sidebar */}
                   <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant="default"
-                      className="h-7 px-2.5 text-xs gap-1 cursor-pointer"
-                      onClick={() => setSelectedProject(project)}
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      View
-                    </Button>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-7 px-2.5 text-xs gap-1 cursor-pointer"
+                        onClick={() => setSelectedProject(project)}
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        View
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );

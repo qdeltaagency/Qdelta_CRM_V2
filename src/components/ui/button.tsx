@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { motion } from 'framer-motion';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'link';
@@ -22,7 +23,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 select-none';
+      'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 select-none will-change-transform';
 
     const variantStyles: Record<string, string> = {
       default:
@@ -45,12 +46,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       icon: 'h-9 w-9 p-0',
     };
 
+    const isInteractive = !disabled && !isLoading && variant !== 'link';
+
     return (
-      <button
+      <motion.button
         ref={ref}
         disabled={disabled || isLoading}
+        whileHover={isInteractive ? { scale: 1.02 } : undefined}
+        whileTap={isInteractive ? { scale: 0.97 } : undefined}
+        transition={{ duration: 0.15, ease: 'easeOut' }}
         className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
-        {...props}
+        {...(props as any)}
       >
         {isLoading && (
           <svg
@@ -75,7 +81,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           </svg>
         )}
         {children}
-      </button>
+      </motion.button>
     );
   }
 );
