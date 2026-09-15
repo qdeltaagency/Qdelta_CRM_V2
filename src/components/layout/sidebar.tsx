@@ -36,10 +36,14 @@ export function Sidebar() {
 
   return (
     <aside className="w-60 shrink-0 h-screen sticky top-0 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col justify-between select-none">
-      {/* Brand Header */}
+      {/* Brand Header Link */}
       <div>
-        <div className="h-14 px-6 flex items-center gap-2.5 border-b border-zinc-200 dark:border-zinc-800">
-          <div className="h-7 w-7 rounded-md bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center font-bold text-xs text-white dark:text-zinc-900 tracking-wider">
+        <Link
+          href="/dashboard"
+          className="h-14 px-6 flex items-center gap-2.5 border-b border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors cursor-pointer group"
+          title="Go to Dashboard"
+        >
+          <div className="h-7 w-7 rounded-md bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center font-bold text-xs text-white dark:text-zinc-900 tracking-wider shrink-0 group-hover:scale-105 transition-transform">
             QD
           </div>
           <div className="flex flex-col">
@@ -50,7 +54,7 @@ export function Sidebar() {
               Internal CRM
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation Items */}
         <nav className="p-3 space-y-1">
