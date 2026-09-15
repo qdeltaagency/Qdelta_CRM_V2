@@ -166,10 +166,13 @@ CREATE TABLE public.documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     client_id UUID REFERENCES public.clients(id) ON DELETE CASCADE,
     project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
+    lead_id UUID REFERENCES public.leads(id) ON DELETE SET NULL,
+    name TEXT NOT NULL,
     type TEXT NOT NULL CHECK (type IN (
         'proposal',
         'invoice',
         'receipt',
+        'agreement',
         'client_agreement',
         'nda',
         'terms',
@@ -183,6 +186,8 @@ CREATE TABLE public.documents (
         'completed'
     )),
     file_url TEXT,
+    public_token TEXT UNIQUE DEFAULT encode(gen_random_bytes(16), 'hex'),
+    metadata JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

@@ -111,7 +111,54 @@ export default function PublicPaymentPage() {
         }
       }
 
-      // 4. Log activity
+      // 4. Auto-generate official receipt document
+      let receiptDoc: any = null;
+      try {
+        const { generateMilestoneReceipt } = await import('@/lib/documents-service');
+        receiptDoc = await generateMilestoneReceipt({
+          ...milestone,
+          status: 'paid',
+          projects: {
+            ...project,
+            clients: project.clients,
+          },
+        });
+      } catch (rctErr) {
+        console.warn('Could not auto-generate receipt on checkout:', rctErr);
+      }
+
+      // 5. Send automated receipt email if client email is available
+      const clientEmail = project.clients?.email || lead?.email;
+      const clientName = project.clients?.name || lead?.name || 'Valued Client';
+      if (clientEmail) {
+        try {
+          await fetch('/api/email/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'payment_receipt',
+              to: clientEmail,
+              projectId: project.id,
+              clientId: project.client_id,
+              documentId: receiptDoc?.id || null,
+              data: {
+                clientName,
+                companyName: project.clients?.company || lead?.company || '',
+                projectTitle: project.name,
+                amount: milestone.amount || 0,
+                currency: project.currency || 'USD',
+                milestoneType: `Milestone #${milestone.milestone_number} (${milestone.percentage}%)`,
+                transactionId: `STRIPE-CH_${Date.now()}`,
+                receiptUrl: receiptDoc?.public_token ? `${window.location.origin}/doc/${receiptDoc.public_token}` : undefined,
+              },
+            }),
+          });
+        } catch (emailErr) {
+          console.warn('Could not dispatch receipt email:', emailErr);
+        }
+      }
+
+      // 6. Log activity
       await supabase.from('activities').insert([
         {
           project_id: project.id,

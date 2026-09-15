@@ -8,11 +8,12 @@ import { Topbar } from '@/components/layout/topbar';
 export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isPayRoute = pathname === '/pay' || pathname?.startsWith('/pay/');
+  const isDocRoute = pathname === '/doc' || pathname?.startsWith('/doc/');
 
-  if (isPayRoute) {
+  if (isPayRoute || isDocRoute) {
     return (
-      <div className="min-h-screen w-full bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col justify-center">
-        <main className="w-full flex-1 flex items-center justify-center p-4 sm:p-6">
+      <div className="min-h-screen w-full bg-[#0c0c0e] text-zinc-100 flex flex-col justify-center">
+        <main className="w-full flex-1 flex items-center justify-center p-0">
           {children}
         </main>
       </div>

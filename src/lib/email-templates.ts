@@ -433,3 +433,191 @@ export function generatePaymentRequestHtml(data: PaymentRequestEmailData): strin
 </html>
 `;
 }
+
+export interface DocumentNotificationEmailData {
+  clientName: string;
+  companyName?: string | null;
+  projectTitle: string;
+  documentType: 'proposal' | 'invoice' | 'receipt' | 'agreement' | 'nda' | 'handover' | 'document';
+  documentTitle: string;
+  documentUrl: string;
+  customMessage?: string;
+  amount?: number;
+  currency?: string;
+}
+
+export function generateDocumentNotificationHtml(data: DocumentNotificationEmailData): string {
+  const typeTitles: Record<string, { badge: string; heading: string; action: string; color: string; desc: string }> = {
+    proposal: {
+      badge: 'Project Proposal Ready',
+      heading: 'Scope & Architecture Proposal',
+      action: 'Review & Accept Proposal →',
+      color: '#6366f1',
+      desc: 'We have compiled a comprehensive technical proposal and milestone plan for your project.',
+    },
+    agreement: {
+      badge: 'Master Services Agreement',
+      heading: 'Contract Agreement for Review',
+      action: 'Review & Sign Agreement →',
+      color: '#3b82f6',
+      desc: 'Please review and accept our Master Services Agreement to proceed with engineering sprints.',
+    },
+    nda: {
+      badge: 'Confidentiality Agreement',
+      heading: 'Non-Disclosure Agreement (NDA)',
+      action: 'View NDA Document →',
+      color: '#8b5cf6',
+      desc: 'A Mutual Non-Disclosure Agreement has been prepared for your execution.',
+    },
+    handover: {
+      badge: 'Project Delivery & Handover',
+      heading: 'Final Assets & Production Sign-Off',
+      action: 'Access Handover Portal →',
+      color: '#10b981',
+      desc: 'Congratulations! All milestone sprint deliverables, codebases, and credentials are ready for handover.',
+    },
+    invoice: {
+      badge: 'Invoice Issued',
+      heading: 'Invoice Ready for Settlement',
+      action: 'View Invoice & Pay →',
+      color: '#f59e0b',
+      desc: 'An invoice has been generated for your active milestone phase.',
+    },
+    receipt: {
+      badge: 'Payment Confirmed',
+      heading: 'Official Payment Receipt',
+      action: 'View Receipt Record →',
+      color: '#10b981',
+      desc: 'Your payment was successfully received and credited to your project ledger.',
+    },
+    document: {
+      badge: 'Studio Document',
+      heading: 'New Document Shared',
+      action: 'Open Document →',
+      color: '#6366f1',
+      desc: 'A new document has been shared with you by Qdelta Studio.',
+    },
+  };
+
+  const currentMeta = typeTitles[data.documentType] || typeTitles.document;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${data.documentTitle} — Qdelta Studio</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0c0c0e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #e4e4e7;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #0c0c0e; padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 580px; background-color: #141417; border: 1px solid #27272a; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+          
+          <!-- Header Banner -->
+          <tr>
+            <td style="padding: 32px 32px 24px 32px; background: linear-gradient(135deg, #18181b 0%, #1e1b4b 100%); border-bottom: 1px solid #27272a;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td>
+                    <div style="display: inline-block; background-color: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 6px 12px; margin-bottom: 12px;">
+                      <span style="color: #a5b4fc; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">${currentMeta.badge}</span>
+                    </div>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">${currentMeta.heading}</h1>
+                    <p style="margin: 4px 0 0 0; color: #a1a1aa; font-size: 13px;">${data.projectTitle} • Qdelta Digital Studio</p>
+                  </td>
+                  <td align="right" valign="top">
+                    <div style="width: 40px; height: 40px; background-color: #4f46e5; border-radius: 10px; text-align: center; line-height: 40px; color: #ffffff; font-weight: 800; font-size: 18px;">
+                      Q
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Document Info Body -->
+          <tr>
+            <td style="padding: 32px;">
+              <p style="margin: 0 0 16px 0; color: #ffffff; font-size: 15px; font-weight: 600;">
+                Hi ${data.clientName},
+              </p>
+              <p style="margin: 0 0 20px 0; color: #a1a1aa; font-size: 13px; line-height: 1.6;">
+                ${data.customMessage || currentMeta.desc}
+              </p>
+
+              <!-- Document Details Card -->
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #18181b; border: 1px solid #27272a; border-radius: 12px; margin-bottom: 24px;">
+                <tr>
+                  <td style="padding: 20px;">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td style="color: #71717a; font-size: 11px; text-transform: uppercase; font-weight: 600; padding-bottom: 6px;">Document</td>
+                        <td align="right" style="color: #e4e4e7; font-size: 13px; font-weight: 700; padding-bottom: 6px;">
+                          ${data.documentTitle}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #71717a; font-size: 12px; padding: 6px 0; border-top: 1px solid #27272a;">Project</td>
+                        <td align="right" style="color: #a1a1aa; font-size: 12px; font-weight: 600; padding: 6px 0; border-top: 1px solid #27272a;">
+                          ${data.projectTitle}
+                        </td>
+                      </tr>
+                      ${data.amount ? `
+                      <tr>
+                        <td style="color: #71717a; font-size: 12px; padding: 6px 0; border-top: 1px solid #27272a;">Amount</td>
+                        <td align="right" style="color: #34d399; font-size: 14px; font-weight: 800; font-family: monospace; padding: 6px 0; border-top: 1px solid #27272a;">
+                          $${Number(data.amount).toLocaleString()} ${data.currency || 'USD'}
+                        </td>
+                      </tr>
+                      ` : ''}
+                      <tr>
+                        <td style="color: #71717a; font-size: 12px; padding: 6px 0; border-top: 1px solid #27272a;">Client</td>
+                        <td align="right" style="color: #a1a1aa; font-size: 12px; font-weight: 600; padding: 6px 0; border-top: 1px solid #27272a;">
+                          ${data.companyName ? `${data.companyName} (${data.clientName})` : data.clientName}
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Call to Action Button -->
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 24px;">
+                <tr>
+                  <td align="center">
+                    <a href="${data.documentUrl}" target="_blank" style="display: inline-block; background-color: #4f46e5; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; padding: 14px 36px; border-radius: 8px; box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);">
+                      ${currentMeta.action}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0; color: #71717a; font-size: 12px; line-height: 1.6; text-align: center;">
+                Direct access link: <a href="${data.documentUrl}" style="color: #818cf8; word-break: break-all;">${data.documentUrl}</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 32px; background-color: #101012; border-top: 1px solid #27272a; text-align: center;">
+              <p style="margin: 0 0 4px 0; color: #71717a; font-size: 11px;">
+                © ${new Date().getFullYear()} Qdelta Digital Studio. All rights reserved.
+              </p>
+              <p style="margin: 0; color: #52525b; font-size: 10px;">
+                Secure 256-bit Encrypted Document Portal
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+}
+

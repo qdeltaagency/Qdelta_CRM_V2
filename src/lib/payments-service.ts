@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { convertLeadToClient } from './leads-service';
+import { generateMilestoneInvoice, generateMilestoneReceipt } from './documents-service';
 
 export type MilestoneStatus =
   | 'locked'
@@ -255,7 +256,7 @@ export async function generateMilestonePaymentLink(
   const generatedLink = `/pay/${milestoneId}`;
   const nowIso = new Date().toISOString();
 
-  const { error } = await supabase
+  const { data: updatedMs, error } = await supabase
     .from('payment_milestones')
     .update({
       status: 'link_generated',
@@ -263,11 +264,22 @@ export async function generateMilestonePaymentLink(
       payment_link_generated_at: nowIso,
       provider: 'stripe',
     })
-    .eq('id', milestoneId);
+    .eq('id', milestoneId)
+    .select('*, projects(*, clients(*))')
+    .single();
 
   if (error) {
     console.error('Error generating payment link:', error);
     throw error;
+  }
+
+  // Auto-generate invoice document for this milestone
+  if (updatedMs) {
+    try {
+      await generateMilestoneInvoice(updatedMs as PaymentMilestone);
+    } catch (invErr) {
+      console.warn('Could not auto-generate invoice document:', invErr);
+    }
   }
 
   return generatedLink;
@@ -301,6 +313,7 @@ export async function markMilestoneAsSent(milestoneId: string): Promise<void> {
  * - Inserts into payments table
  * - If milestone 1, converts lead / activates client if still a draft
  * - Automatically unlocks milestone 2 if applicable
+ * - Auto-generates official receipt document
  */
 export async function markMilestoneAsPaid(
   milestone: PaymentMilestone
@@ -358,7 +371,14 @@ export async function markMilestoneAsPaid(
     }
   }
 
-  // 4. Log activity
+  // 4. Auto-generate official receipt document
+  try {
+    await generateMilestoneReceipt(milestone);
+  } catch (rctErr) {
+    console.warn('Could not auto-generate receipt document:', rctErr);
+  }
+
+  // 5. Log activity
   try {
     await supabase.from('activities').insert([
       {

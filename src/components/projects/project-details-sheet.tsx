@@ -18,6 +18,8 @@ import {
   markMilestoneAsPaid,
   PaymentMilestone,
 } from '@/lib/payments-service';
+import { getProjectDocuments, DocumentRecord } from '@/lib/documents-service';
+import { GenerateDocumentModal } from './generate-document-modal';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/ui/toast';
 import {
@@ -37,6 +39,10 @@ import {
   Copy,
   Send,
   Check,
+  Plus,
+  Eye,
+  Printer,
+  Sparkles,
 } from 'lucide-react';
 
 interface ProjectDetailsSheetProps {
@@ -58,6 +64,9 @@ export function ProjectDetailsSheet({
   const [isUpdatingStage, setIsUpdatingStage] = React.useState(false);
   const [isUpdatingDomain, setIsUpdatingDomain] = React.useState(false);
   const [actionLoadingId, setActionLoadingId] = React.useState<string | null>(null);
+  const [projectDocuments, setProjectDocuments] = React.useState<DocumentRecord[]>([]);
+  const [isDocsLoading, setIsDocsLoading] = React.useState(false);
+  const [isGenerateDocOpen, setIsGenerateDocOpen] = React.useState(false);
 
   if (!project) return null;
 
@@ -77,9 +86,28 @@ export function ProjectDetailsSheet({
     toast({
       type: 'info',
       title: 'Link Copied',
-      description: 'Payment link copied to clipboard.',
+      description: 'Public link copied to clipboard.',
     });
   };
+
+  const loadDocuments = React.useCallback(async () => {
+    if (!project?.id) return;
+    setIsDocsLoading(true);
+    try {
+      const docs = await getProjectDocuments(project.id);
+      setProjectDocuments(docs);
+    } catch (err) {
+      console.warn('Could not load project documents:', err);
+    } finally {
+      setIsDocsLoading(false);
+    }
+  }, [project?.id]);
+
+  React.useEffect(() => {
+    if (isOpen && project?.id) {
+      loadDocuments();
+    }
+  }, [isOpen, project?.id, loadDocuments]);
 
   const handleGenerateLink = async (milestone: any) => {
     setActionLoadingId(milestone.id);
@@ -384,32 +412,90 @@ export function ProjectDetailsSheet({
           </div>
         </div>
 
-        {/* 4. Documents */}
-        <div className="space-y-2">
-          <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-            Documents & Legal Assets
-          </h4>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center justify-between p-2.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/20">
-              <span className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
-                <FileText className="w-3.5 h-3.5 text-zinc-400" />
-                Client Agreement
-              </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                Signed
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-2.5 rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-900/20">
-              <span className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
-                <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" />
-                Terms & Conditions
-              </span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                Accepted
-              </span>
-            </div>
+        {/* 4. Documents & Legal Assets */}
+        <div className="space-y-3 pt-2 border-t border-zinc-200/60 dark:border-zinc-800/60">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-indigo-500" />
+              Documents & Contracts
+            </h4>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsGenerateDocOpen(true)}
+              className="h-6 px-2 text-[11px] font-medium gap-1 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 cursor-pointer"
+            >
+              <Plus className="w-3 h-3" />
+              <span>Generate Document</span>
+            </Button>
           </div>
+
+          {isDocsLoading ? (
+            <div className="py-4 text-center text-xs text-zinc-400">Loading documents...</div>
+          ) : projectDocuments.length === 0 ? (
+            <div className="p-4 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 text-center space-y-1.5 bg-zinc-50/50 dark:bg-zinc-900/20">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">No documents generated for this project yet.</p>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setIsGenerateDocOpen(true)}
+                className="h-7 text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 cursor-pointer"
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                Generate Proposal, Invoice, NDA or Handover
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {projectDocuments.map((doc) => {
+                const docUrl = `/doc/${doc.public_token}`;
+                return (
+                  <div
+                    key={doc.id}
+                    className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 flex items-center justify-between gap-3 text-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-xs"
+                  >
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                          {doc.name}
+                        </span>
+                        <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shrink-0">
+                          {doc.type}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-zinc-400">
+                        <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <StatusBadge status={doc.status} />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer"
+                        onClick={() => copyToClipboard(docUrl)}
+                        title="Copy Public Link"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </Button>
+                      <a
+                        href={docUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center h-7 px-2 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-[11px] font-medium gap-1 transition-colors cursor-pointer"
+                        title="View Document"
+                      >
+                        <Eye className="w-3 h-3" />
+                        <span>View</span>
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* 5. Payments (Milestones) */}
@@ -594,6 +680,21 @@ export function ProjectDetailsSheet({
           </div>
         </div>
       </div>
+
+      <GenerateDocumentModal
+        isOpen={isGenerateDocOpen}
+        onClose={() => setIsGenerateDocOpen(false)}
+        project={project}
+        onDocumentGenerated={(newDoc) => {
+          setProjectDocuments((prev) => [newDoc, ...prev]);
+          toast({
+            type: 'success',
+            title: 'Document Generated',
+            description: `Generated "${newDoc.name}" with public link.`,
+          });
+          onRefresh();
+        }}
+      />
     </Sheet>
   );
 }

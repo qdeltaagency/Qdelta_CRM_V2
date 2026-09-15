@@ -181,6 +181,8 @@ export function AgencyAuthProvider({ children }: { children: React.ReactNode }) 
   const isPublicRoute =
     pathname === '/pay' ||
     pathname?.startsWith('/pay/') ||
+    pathname === '/doc' ||
+    pathname?.startsWith('/doc/') ||
     pathname?.startsWith('/api') ||
     pathname === '/favicon.ico';
 
