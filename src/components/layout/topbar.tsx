@@ -20,18 +20,10 @@ export function Topbar() {
 
       {/* Right User Area */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2.5 pl-3 border-l border-zinc-200 dark:border-zinc-800">
-          <div className="h-7 w-7 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center text-xs font-semibold select-none">
-            SA
-          </div>
-          <div className="hidden sm:flex flex-col text-left">
-            <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100 leading-tight">
-              Sai Prabhath
-            </span>
-            <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-              Agency Lead
-            </span>
-          </div>
+        <div className="flex items-center pl-3 border-l border-zinc-200 dark:border-zinc-800">
+          <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100 select-none">
+            Agency Lead
+          </span>
         </div>
       </div>
     </header>
