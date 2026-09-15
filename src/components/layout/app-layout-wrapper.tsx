@@ -4,7 +4,6 @@ import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
-import { SidebarProvider } from '@/components/layout/sidebar-context';
 
 export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -22,16 +21,14 @@ export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased font-sans">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0 transition-all duration-200">
-          <Topbar />
-          <main className="flex-1 p-6 md:p-8 w-full max-w-7xl mx-auto min-w-0">
-            {children}
-          </main>
-        </div>
+    <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased font-sans">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Topbar />
+        <main className="flex-1 p-6 md:p-8 w-full max-w-7xl mx-auto min-w-0">
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
