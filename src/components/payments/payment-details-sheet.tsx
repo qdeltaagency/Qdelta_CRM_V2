@@ -37,11 +37,17 @@ interface PaymentDetailsSheetProps {
 
 export function PaymentDetailsSheet({
   isOpen,
-  group,
+  group: propGroup,
   onClose,
   onOpenActivity,
   onRefresh,
 }: PaymentDetailsSheetProps) {
+  const lastGroupRef = React.useRef<ProjectPaymentGroup | null>(propGroup);
+  if (propGroup) {
+    lastGroupRef.current = propGroup;
+  }
+  const group = propGroup || lastGroupRef.current;
+
   const { toast } = useToast();
   const [actionLoadingId, setActionLoadingId] = React.useState<string | null>(null);
 

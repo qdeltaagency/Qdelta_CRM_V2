@@ -54,12 +54,18 @@ interface LeadDetailsSheetProps {
 
 export function LeadDetailsSheet({
   isOpen,
-  lead,
+  lead: propLead,
   onClose,
   onEdit,
   onOpenActivity,
   onRefresh,
 }: LeadDetailsSheetProps) {
+  const lastLeadRef = React.useRef<Lead | null>(propLead);
+  if (propLead) {
+    lastLeadRef.current = propLead;
+  }
+  const lead = propLead || lastLeadRef.current;
+
   const { toast } = useToast();
   const [isUpdatingStatus, setIsUpdatingStatus] = React.useState(false);
   const [isGeneratingLink, setIsGeneratingLink] = React.useState(false);

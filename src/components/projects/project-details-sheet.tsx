@@ -55,11 +55,17 @@ interface ProjectDetailsSheetProps {
 
 export function ProjectDetailsSheet({
   isOpen,
-  project,
+  project: propProject,
   onClose,
   onOpenActivity,
   onRefresh,
 }: ProjectDetailsSheetProps) {
+  const lastProjectRef = React.useRef<ProjectItem | null>(propProject);
+  if (propProject) {
+    lastProjectRef.current = propProject;
+  }
+  const project = propProject || lastProjectRef.current;
+
   const { toast } = useToast();
   const [isUpdatingStage, setIsUpdatingStage] = React.useState(false);
   const [isUpdatingDomain, setIsUpdatingDomain] = React.useState(false);
@@ -69,7 +75,6 @@ export function ProjectDetailsSheet({
   const [isGenerateDocOpen, setIsGenerateDocOpen] = React.useState(false);
 
   if (!project) return null;
-
   const client = project.clients;
   const milestones = project.payment_milestones || [];
   const currencySymbol =

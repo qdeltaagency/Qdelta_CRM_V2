@@ -45,15 +45,15 @@ export function Sheet({
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end pointer-events-auto">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="fixed inset-0 bg-black/60 backdrop-blur-xs"
             aria-hidden="true"
             onClick={onClose}
@@ -64,7 +64,7 @@ export function Sheet({
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
             className={`relative w-full ${widthStyles[width]} h-full bg-white dark:bg-zinc-950 border-l border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col justify-between z-10 will-change-transform`}
             role="dialog"
             aria-modal="true"
